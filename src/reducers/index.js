@@ -1,3 +1,5 @@
 import { combineReducers } from 'redux'
-
-export default combineReducers({ auth: () => ({}) })
+// Reducers
+import data from './collection_reducer'
+import schema from './schema_reducer'
+export default combineReducers({ data, schema })
