@@ -2,6 +2,29 @@ import db from './firebase-config'
 import { GET_COLLECTION, GET_DOCUMENT, GET_SCHEMA, GET_SCHEMAS } from './types'
 import schemas from '../schemas'
 
+export const createDocument = (document, collection) => async dispatch => {
+  const data = await db.collection(collection).add(document)
+  return data.id
+}
+
+export const deleteDocument = (collection, id) => async dispatch => {
+  console.log(id)
+  console.log(collection)
+  const data = await db
+    .collection(collection)
+    .doc(id)
+    .delete()
+  return data
+}
+
+export const updateDocument = (id, document, collection) => async dispatch => {
+  const data = await db
+    .collection(collection)
+    .doc(id)
+    .set(document)
+  return data
+}
+
 export const getCollection = schema => async dispatch => {
   let payload = []
   const data = await db.collection(schema).get()

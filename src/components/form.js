@@ -1,14 +1,53 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { getDocument, getSchema } from '../actions/firebase'
+import {
+  getDocument,
+  getSchema,
+  updateDocument,
+  createDocument
+} from '../actions/firebase'
+import Formsy from 'formsy-react'
+import { Button, Col, Divider, Form, Icon, Layout, message, Row } from 'antd'
+import { Input } from '../components'
+const { Item } = Form
+const { Content } = Layout
 
-class Form extends Component {
+class FormData extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      loading: false,
+      button: true
+    }
+    this.submit = this.submit.bind(this)
+    this.disableButton = this.disableButton.bind(this)
+    this.enableButton = this.enableButton.bind(this)
     this.renderFields = this.renderFields.bind(this)
   }
+
   componentDidMount() {
     this.getSchemaAndDocument(this.props)
+  }
+
+  async submit(model) {
+    const { schema, id } = this.props.match.params
+    this.setState({ loading: true })
+    console.log(model)
+    const response = (await id)
+      ? this.props.updateDocument(id, model, schema)
+      : this.props.createDocument(model, schema)
+
+    response
+      ? message.success('Datos guardados correctamente')
+      : message.error('Ocurrió un error, por favor vuelve a intentarlo')
+  }
+
+  disableButton() {
+    this.setState({ canSubmit: false })
+  }
+
+  enableButton() {
+    this.setState({ canSubmit: true })
   }
 
   getSchemaAndDocument(props) {
@@ -21,32 +60,30 @@ class Form extends Component {
     const { fields } = this.props.schema.selected
     const { props } = this
     const { document } = props
-    console.log(document)
     return Object.keys(props.document).length > 0 && props.match.params.id
       ? fields.map((field, key) => {
           return (
-            <div key={key}>
-              <input
-                type={field.type}
-                placeholder={document[field.key]}
-                maxLength={field.max}
-                minLength={field.min}
-              />
-              <span>{field.error}</span>
-            </div>
+            <Input
+              placeholder={field.name}
+              value={document[field.key]}
+              type={field.type}
+              name={field.key}
+              validations={field.validations}
+              validationError={field.error}
+              required={field.required}
+            />
           )
         })
       : fields.map((field, key) => {
           return (
-            <div key={key}>
-              <input
-                type={field.type}
-                placeholder={field.name}
-                maxLength={field.max}
-                minLength={field.min}
-              />
-              <span>{field.error}</span>
-            </div>
+            <Input
+              placeholder={field.name}
+              type={field.type}
+              name={field.key}
+              validations={field.validations}
+              validationError={field.error}
+              required={field.required}
+            />
           )
         })
   }
@@ -54,18 +91,27 @@ class Form extends Component {
   render() {
     const { id, schema } = this.props.match.params
     const { selected } = this.props.schema
-    console.log(this.props)
-    return Object.keys(selected).length > 0 && id && this.props.document ? (
+    return Object.keys(selected).length > 0 ? (
       <div>
-        Form {schema} / {id}
-        <form>{this.renderFields()}</form>
-      </div>
-    ) : Object.keys(selected).length > 0 ? (
-      <div>
-        <form>{this.renderFields()}</form>
+        <Formsy
+          onValidSubmit={this.submit}
+          onValid={this.enableButton}
+          onInvalid={this.disableButton}
+        >
+          <form>{this.renderFields()}</form>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={this.state.loading}
+            disabled={!this.state.canSubmit}
+            className="fw"
+          >
+            Guardar
+          </Button>
+        </Formsy>
       </div>
     ) : (
-      <div>Cargando...</div>
+      <div>Cargando</div>
     )
   }
 }
@@ -75,4 +121,9 @@ const mapDispatchToProps = ({ data: { document }, schema }) => ({
   schema
 })
 
-export default connect(mapDispatchToProps, { getDocument, getSchema })(Form)
+export default connect(mapDispatchToProps, {
+  createDocument,
+  getDocument,
+  getSchema,
+  updateDocument
+})(FormData)

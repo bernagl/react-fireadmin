@@ -9,6 +9,7 @@ export default [
         key: 'nombre',
         type: 'text',
         error: 'Debes ingresar un nombre válido',
+        validations: { minLength: 6, maxLength: 15 },
         max: 30,
         min: 6,
         required: true
@@ -29,7 +30,8 @@ export default [
         error: 'Debes ingresar un correo válido',
         max: 30,
         min: 6,
-        required: true
+        required: true,
+        validations: 'isEmail'
       }
     ]
   },

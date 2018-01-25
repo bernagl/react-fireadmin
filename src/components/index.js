@@ -1,7 +1,7 @@
-import Form from './form'
+import FormData from './form'
 import Header from './header'
 import Input from './input'
 import Sidebar from './sidebar'
 import Table from './table'
 
-export { Form, Header, Input, Sidebar, Table }
+export { FormData, Header, Input, Sidebar, Table }
